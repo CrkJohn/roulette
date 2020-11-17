@@ -10,7 +10,7 @@ public enum ErrorMessage {
 
 	ERROR_RANGE_MONEY("The range money is between 1 to 10000 USD"),
 
-	ERROR_POSITION_BET("The range position is between 0 to 36 USD"),
+	ERROR_POSITION_BET("The range position is between 0 to 36"),
 
 	ERROR_OPEN_ROULETTE("the roulette is already opened"),
 

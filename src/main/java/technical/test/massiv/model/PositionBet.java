@@ -35,6 +35,7 @@ public class PositionBet  extends Bet{
 		bet.setId(this.getId());
 		bet.setUserId(this.getUserId());
 		bet.setPosition(this.position);
+		bet.setMoney(this.money);
 		return bet;
 	}
 

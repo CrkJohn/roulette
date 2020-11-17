@@ -36,6 +36,7 @@ public class ColorBet  extends Bet{
 		bet.setId(this.getId());
 		bet.setUserId(this.getUserId());
 		bet.setColor(this.color);
+		bet.setMoney(this.money);
 		return bet;
 	}
 

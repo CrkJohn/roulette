@@ -2,13 +2,11 @@ package technical.test.massiv.repo;
 
 import technical.test.massiv.model.Bet;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
  * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
  */
-@Repository
-public interface BetMongoRepository extends ReactiveMongoRepository<Bet, String> {
+public interface BetMongoRepository extends MongoRepository<Bet, String> {
 
 }

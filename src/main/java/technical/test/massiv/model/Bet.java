@@ -1,18 +1,25 @@
 package technical.test.massiv.model;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Bet is used to represent the roulette bet
  *
  * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
  */
+@Document("Bet")
 public abstract class Bet {
 
+	@Id
+	@JsonIgnore
 	private String id;
 
 	protected Integer money;
 
+	@JsonIgnore
 	protected LocalDateTime dateCreationBet;
 
 	protected String userId;
@@ -27,7 +34,15 @@ public abstract class Bet {
 		this.dateCreationBet = LocalDateTime.now();
 	}
 
+	public Bet() {
+
+		this.dateCreationBet = LocalDateTime.now();
+	}
+
 	public abstract void giveProfit();
+
+	@JsonIgnore
+	public abstract Bet getProfit();
 
 	public abstract boolean isWinner(Integer winnerNumber);
 
@@ -71,7 +86,14 @@ public abstract class Bet {
 		this.userId = userId;
 	}
 
+	public double getGain() {
 
+		return gain;
+	}
 
+	public void setGain(double gain) {
+
+		this.gain = gain;
+	}
 
 }

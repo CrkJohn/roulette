@@ -3,82 +3,107 @@ package technical.test.massiv.services.impl;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import technical.test.massiv.config.ConfigurationRange;
+import technical.test.massiv.exception.ErrorMessage;
+import technical.test.massiv.exception.NotFoundRouletteException;
+import technical.test.massiv.exception.NotPossibleActionException;
+import technical.test.massiv.exception.RequestException;
 import technical.test.massiv.model.Bet;
 import technical.test.massiv.model.ColorBet;
 import technical.test.massiv.model.PositionBet;
 import technical.test.massiv.model.Roulette;
-import technical.test.massiv.model.utils.ErrorMessage;
 import technical.test.massiv.model.utils.State;
-import technical.test.massiv.model.utils.StateBet;
+import technical.test.massiv.model.utils.StateRequest;
+import technical.test.massiv.repo.BetMongoRepository;
 import technical.test.massiv.repo.RouletteMongoRepository;
 import technical.test.massiv.services.RouletteService;
-
-import org.apache.commons.lang3.Validate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class RouletteServiceImpl implements RouletteService {
 
 	@Autowired
+	ConfigurationRange configurationRange;
+
+	@Autowired
 	RouletteMongoRepository rouletteRepository;
 
-	@Override
-	public Optional<String> createRoulette(Roulette roulette) {
+	@Autowired
+	BetMongoRepository betMongoRepository;
 
+	@Override
+	public Optional<String> createRoulette() {
+
+		Roulette roulette = new Roulette();
 		roulette.setState(State.CLOSED);
 		return Optional.ofNullable(rouletteRepository.save(roulette).getId());
 	}
 
 	@Override
-	public StateBet doColorBet(String id, ColorBet bet) {
+	public StateRequest doColorBet(String idRoulette, String userId, ColorBet bet)
+			throws NotFoundRouletteException, NotPossibleActionException, RequestException {
 
-		return doBet(id, bet);
+		return doBet(idRoulette, userId, bet);
 	}
 
 	@Override
-	public StateBet doPositionBet(String id, PositionBet bet) {
+	public StateRequest doPositionBet(String idRoulette, String userId, PositionBet bet)
+			throws NotFoundRouletteException, NotPossibleActionException, RequestException {
 
 		ValidatePosition(bet.getPosition());
-		return doBet(id, bet);
+		return doBet(idRoulette, userId, bet);
 	}
 
-	private StateBet doBet(String id, Bet bet) {
+	private StateRequest doBet(String idRoulette, String userId, Bet bet)
+			throws NotPossibleActionException, NotFoundRouletteException, RequestException {
 
-		ValidateUserIdAndMoneyRange(bet);
-		return rouletteRepository.findById(id)
-								 .filter(Roulette::isOpenRoulette)
-								 .map(roulette -> {
-									 roulette.addBet(bet);
-									 rouletteRepository.save(roulette);
-									 return StateBet.ACCEPTED;
-								 }).orElse(StateBet.REJECTED);
-	}
-
-	@Override
-	public Boolean openRoulette(String idRoulette) {
-
-		return rouletteRepository.findById(idRoulette)
-								 .filter(Roulette::isCloseRoulette)
-								 .map(roulette -> {
-									 roulette.openRoulette();
-									 rouletteRepository.save(roulette);
-									 return Boolean.TRUE;
-								 }).orElse(Boolean.FALSE);
+		bet.setUserId(userId);
+		ValidateMoneyRange(bet);
+		Roulette roulette = findRouletteById(idRoulette);
+		if (roulette.isOpenRoulette()) {
+			betMongoRepository.save(bet);
+			roulette.addBet(bet);
+			rouletteRepository.save(roulette);
+			return StateRequest.ACCEPTED;
+		}
+		throw new NotPossibleActionException(ErrorMessage.NOT_POSSIBLE_BET);
 	}
 
 	@Override
-	public Optional<List<Bet>> closeRoulette(String idRoulette) {
+	public StateRequest openRoulette(String idRoulette) throws NotPossibleActionException, NotFoundRouletteException {
+
+		Roulette roulette = findRouletteById(idRoulette);
+		if (roulette.isCloseRoulette()) {
+			roulette.openRoulette();
+			rouletteRepository.save(roulette);
+			return StateRequest.ACCEPTED;
+		}
+		throw new NotPossibleActionException(ErrorMessage.ERROR_OPEN_ROULETTE);
+	}
+
+	@Override
+	public Optional<List<Bet>> closeRoulette(String idRoulette)
+			throws NotFoundRouletteException, NotPossibleActionException {
 
 		Integer winnerNumber = chooseNumberWinner();
-		return rouletteRepository.findById(idRoulette)
-								 .map(roulette -> {
-									 roulette.defineWinners(winnerNumber);
-									 roulette.closeRoulette();
-									 rouletteRepository.save(roulette);
-									 return roulette.getBets();
-								 });
+		Roulette roulette = findRouletteById(idRoulette);
+		if (roulette.isOpenRoulette()) {
+			roulette.defineWinners(winnerNumber);
+			roulette.closeRoulette();
+			rouletteRepository.save(roulette);
+			return roulette.obtainProfitsFromTheBets();
+		}
+		throw new NotPossibleActionException(ErrorMessage.ERROR_CLOSE_ROULETTE);
+	}
+
+	private Roulette findRouletteById(String idRoulette) throws NotFoundRouletteException {
+
+		Optional<Roulette> optionalRoulette = rouletteRepository.findById(idRoulette);
+		if (optionalRoulette.isPresent()) {
+			return optionalRoulette.get();
+		}
+		throw new NotFoundRouletteException(ErrorMessage.NOT_FOUND_ROULETTE, idRoulette);
 	}
 
 	@Override
@@ -93,16 +118,22 @@ public class RouletteServiceImpl implements RouletteService {
 		return rand.nextInt(36);
 	}
 
-	private void ValidatePosition(Integer position) {
+	private void ValidatePosition(Integer position) throws RequestException {
 
-		Validate.exclusiveBetween(0, 36, position, "");
+		validateRange(configurationRange.getMinSpotBet(), configurationRange.getMaxSpotBet(), position,
+					  ErrorMessage.ERROR_POSITION_BET);
 	}
 
-	private void ValidateUserIdAndMoneyRange(Bet bet) {
+	private void ValidateMoneyRange(Bet bet) throws RequestException {
 
-		Validate.notNull(bet.getUserId(), ErrorMessage.USER_NO_NULL.getMessage());
-		boolean noAcceptableAmount = bet.getMoney() < 1 && bet.getMoney() > 10000;
-		Validate.isTrue(noAcceptableAmount, ErrorMessage.ERROR_RANGE_MONEY.getMessage());
+		validateRange(configurationRange.getMinMoneyBet(), configurationRange.getMaxMoneyBet(), bet.getMoney(),
+					  ErrorMessage.ERROR_RANGE_MONEY);
 	}
 
+	private void validateRange(Integer start, Integer end, Integer value, ErrorMessage message) throws RequestException {
+
+		if (value < start || value > end) {
+			throw new RequestException(message);
+		}
+	}
 }

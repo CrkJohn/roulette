@@ -3,6 +3,11 @@ package technical.test.massiv.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import technical.test.massiv.model.utils.State;
 
 /**
@@ -12,18 +17,24 @@ import technical.test.massiv.model.utils.State;
  */
 public class Roulette {
 
+	@Id
 	private String id;
 
 	private State state;
 
+	@JsonIgnore
 	private Integer numberWinner;
 
+	@JsonIgnore
 	private LocalDateTime dateOpenRoulette;
 
+	@JsonIgnore
 	private LocalDateTime dateCreatedRoulette;
 
+	@JsonIgnore
 	private LocalDateTime dateCloseRoulette;
 
+	@JsonIgnore
 	private List<Bet> bets;
 
 	public Roulette() {
@@ -31,11 +42,13 @@ public class Roulette {
 		this.dateCreatedRoulette = LocalDateTime.now();
 	}
 
+	@JsonIgnore
 	public boolean isOpenRoulette(){
 
 		return state.equals(State.OPENED);
 	}
 
+	@JsonIgnore
 	public boolean isCloseRoulette(){
 
 		return state.equals(State.CLOSED);
@@ -118,6 +131,12 @@ public class Roulette {
 			.forEach(Bet::giveProfit);
 	}
 
+	public Optional<List<Bet>> obtainProfitsFromTheBets() {
 
+		return Optional.of(
+				bets.stream()
+					.map(Bet::getProfit)
+					.collect(Collectors.toList()));
 
+	}
 }

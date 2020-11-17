@@ -118,16 +118,6 @@ public class Roulette {
 			.forEach(Bet::giveProfit);
 	}
 
-	@Override public String toString() {
 
-		return "Roulette{" +
-				"id='" + id + '\'' +
-				", state=" + state +
-				", numberWinner=" + numberWinner +
-				", dateOpenRoulette=" + dateOpenRoulette +
-				", dateCloseRoulette=" + dateCloseRoulette +
-				", bets=" + bets +
-				'}';
-	}
 
 }

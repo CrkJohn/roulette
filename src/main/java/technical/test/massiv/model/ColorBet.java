@@ -3,6 +3,11 @@ package technical.test.massiv.model;
 import org.springframework.data.mongodb.core.mapping.Document;
 import technical.test.massiv.model.utils.Color;
 
+/**
+ * ColorBet is used to represent the bet given by Color.
+ *
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 @Document("Bet")
 public class ColorBet  extends Bet{
 

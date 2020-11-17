@@ -2,6 +2,9 @@ package technical.test.massiv.exception;
 
 import org.slf4j.helpers.MessageFormatter;
 
+/**
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 public class NotPossibleActionException extends Exception {
 
 	public NotPossibleActionException(ErrorMessage errorOpenRoulette) {

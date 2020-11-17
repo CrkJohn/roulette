@@ -3,8 +3,7 @@ package technical.test.massiv.services.impl;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 import technical.test.massiv.config.ConfigurationRange;
 import technical.test.massiv.exception.ErrorMessage;
 import technical.test.massiv.exception.NotFoundRouletteException;
@@ -20,6 +19,12 @@ import technical.test.massiv.repo.BetMongoRepository;
 import technical.test.massiv.repo.RouletteMongoRepository;
 import technical.test.massiv.services.RouletteService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 @Service
 public class RouletteServiceImpl implements RouletteService {
 
@@ -115,7 +120,7 @@ public class RouletteServiceImpl implements RouletteService {
 	private Integer chooseNumberWinner() {
 
 		SecureRandom rand = new SecureRandom();
-		return rand.nextInt(36);
+		return rand.nextInt(configurationRange.getMaxSpotBet());
 	}
 
 	private void ValidatePosition(Integer position) throws RequestException {

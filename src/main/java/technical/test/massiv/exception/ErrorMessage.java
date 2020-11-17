@@ -1,10 +1,16 @@
 package technical.test.massiv.exception;
 
+/**
+ * ErrorMessage is used to represent
+ * the possible errors that can happen in the application
+ *
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 public enum ErrorMessage {
 
 	ERROR_RANGE_MONEY("The range money is between 1 to 10000 USD"),
 
-	ERROR_POSITION_BET(""),
+	ERROR_POSITION_BET("The range position is between 0 to 36 USD"),
 
 	ERROR_OPEN_ROULETTE("the roulette is already opened"),
 

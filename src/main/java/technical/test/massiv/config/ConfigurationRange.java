@@ -3,6 +3,12 @@ package technical.test.massiv.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ *  ConfigurationRange is used to represent the range values of
+ *  position of the wheel head and money
+ *
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 @Component
 public class ConfigurationRange {
 

@@ -13,8 +13,7 @@ import technical.test.massiv.model.utils.StateRequest;
 
 /**
  * This class intercepts the message and defines the status and message of the http response
- *
- * @author <a href="john.ibanez@payulatam.com">John D. Ibanez</a>
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
  */
 @Slf4j
 @ControllerAdvice

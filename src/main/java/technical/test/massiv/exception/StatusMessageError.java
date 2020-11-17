@@ -2,7 +2,9 @@ package technical.test.massiv.exception;
 
 import technical.test.massiv.model.utils.StateRequest;
 
-
+/**
+ * @author <a href="johnibanezt@gmail.com">John D. Ibanez</a>
+ */
 public class StatusMessageError {
 
 	StateRequest stateRequest;

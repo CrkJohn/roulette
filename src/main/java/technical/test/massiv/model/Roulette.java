@@ -42,6 +42,16 @@ public class Roulette {
 		this.dateCreatedRoulette = LocalDateTime.now();
 	}
 
+	public LocalDateTime getDateOpenRoulette() {
+
+		return dateOpenRoulette;
+	}
+
+	public LocalDateTime getDateCloseRoulette() {
+
+		return dateCloseRoulette;
+	}
+
 	@JsonIgnore
 	public boolean isOpenRoulette(){
 

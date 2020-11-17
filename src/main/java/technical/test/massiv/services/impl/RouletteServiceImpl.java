@@ -42,6 +42,7 @@ public class RouletteServiceImpl implements RouletteService {
 
 		Roulette roulette = new Roulette();
 		roulette.setState(State.CLOSED);
+
 		return Optional.ofNullable(rouletteRepository.save(roulette).getId());
 	}
 
@@ -57,6 +58,7 @@ public class RouletteServiceImpl implements RouletteService {
 			throws NotFoundRouletteException, NotPossibleActionException, RequestException {
 
 		ValidatePosition(bet.getPosition());
+
 		return doBet(idRoulette, userId, bet);
 	}
 
@@ -70,6 +72,7 @@ public class RouletteServiceImpl implements RouletteService {
 			betMongoRepository.save(bet);
 			roulette.addBet(bet);
 			rouletteRepository.save(roulette);
+
 			return StateRequest.ACCEPTED;
 		}
 		throw new NotPossibleActionException(ErrorMessage.NOT_POSSIBLE_BET);
@@ -82,6 +85,7 @@ public class RouletteServiceImpl implements RouletteService {
 		if (roulette.isCloseRoulette()) {
 			roulette.openRoulette();
 			rouletteRepository.save(roulette);
+
 			return StateRequest.ACCEPTED;
 		}
 		throw new NotPossibleActionException(ErrorMessage.ERROR_OPEN_ROULETTE);
@@ -97,6 +101,7 @@ public class RouletteServiceImpl implements RouletteService {
 			roulette.defineWinners(winnerNumber);
 			roulette.closeRoulette();
 			rouletteRepository.save(roulette);
+
 			return roulette.obtainProfitsFromTheBets();
 		}
 		throw new NotPossibleActionException(ErrorMessage.ERROR_CLOSE_ROULETTE);
@@ -106,6 +111,7 @@ public class RouletteServiceImpl implements RouletteService {
 
 		Optional<Roulette> optionalRoulette = rouletteRepository.findById(idRoulette);
 		if (optionalRoulette.isPresent()) {
+
 			return optionalRoulette.get();
 		}
 		throw new NotFoundRouletteException(ErrorMessage.NOT_FOUND_ROULETTE, idRoulette);
@@ -125,17 +131,17 @@ public class RouletteServiceImpl implements RouletteService {
 
 	private void ValidatePosition(Integer position) throws RequestException {
 
-		validateRange(configurationRange.getMinSpotBet(), configurationRange.getMaxSpotBet(), position,
-					  ErrorMessage.ERROR_POSITION_BET);
+		isBetween(configurationRange.getMinSpotBet(), configurationRange.getMaxSpotBet(), position,
+				  ErrorMessage.ERROR_POSITION_BET);
 	}
 
 	private void ValidateMoneyRange(Bet bet) throws RequestException {
 
-		validateRange(configurationRange.getMinMoneyBet(), configurationRange.getMaxMoneyBet(), bet.getMoney(),
-					  ErrorMessage.ERROR_RANGE_MONEY);
+		isBetween(configurationRange.getMinMoneyBet(), configurationRange.getMaxMoneyBet(), bet.getMoney(),
+				  ErrorMessage.ERROR_RANGE_MONEY);
 	}
 
-	private void validateRange(Integer start, Integer end, Integer value, ErrorMessage message) throws RequestException {
+	private void isBetween(Integer start, Integer end, Integer value, ErrorMessage message) throws RequestException {
 
 		if (value < start || value > end) {
 			throw new RequestException(message);
